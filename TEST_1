@@ -1,0 +1,216 @@
+=====================================
+Добавим курьеров
+
+curl -i -H "Content-Type: application/json" -X POST\
+ -d '{"data": [{
+    "courier_id": 1,
+    "courier_type": "foot",
+    "regions": [17, 6, 15],
+    "working_hours": ["11:35-14:05", "09:00-11:00"]
+    },
+    {
+    "courier_id": 2,
+    "courier_type": "bike",
+    "regions": [22, 6],
+    "working_hours": ["09:00-18:00"]
+    }] }' http://0.0.0.0:8080/couriers
+
+Вывод:
+{"couriers":[{"id":1},{"id":2}]}
+
+===========================================
+Проверим добавились ли курьеры в базу данных
+
+curl http://0.0.0.0:8080/couriers/1
+
+Вывод:
+{"courier_id":1,"courier_type":"foot","regions":[17,6,15],"working_hours":"{11:35-14:05,09:00-11:00}"}
+
+curl http://0.0.0.0:8080/couriers/2
+
+Вывод:
+{"courier_id":2,"courier_type":"bike","regions":[22,6],"working_hours":"{09:00-18:00}"}
+
+=============================================
+Добавим заказы
+
+curl -i -H "Content-Type: application/json" -X POST\
+ -d '{"data": [{
+    "order_id": 1,
+    "weight": 12,
+    "region": 6,
+    "delivery_hours": ["11:35-12:05", "09:40-11:05"]
+    },
+    {
+    "order_id": 2,
+    "weight": 50,
+    "region": 22,
+    "delivery_hours": ["09:00-09:45"]
+    },
+    {
+    "order_id": 3,
+    "weight": 4,
+    "region": 17,
+    "delivery_hours": ["15:00-18:45"]
+    }] }' http://0.0.0.0:8080/orders
+
+Вывод:
+{"orders":[{"id":1},{"id":2},{"id":3}]}
+
+==============================================================
+Назначим заказы для курьера 2
+
+curl -i -H "Content-Type: application/json" -X POST\
+    -d '{
+    "courier_id" : 2
+    }' http://0.0.0.0:8080/orders/assign
+
+Вывод:
+{"assign_time":"TIME","orders":[{"id":1}]}
+
+===============================================================
+Назначим заказы для курьера 1
+
+curl -i -H "Content-Type: application/json" -X POST\
+    -d '{
+    "courier_id" : 1
+    }' http://0.0.0.0:8080/orders/assign
+
+Вывод:
+[]
+
+================================================================
+Закончим доставку заказа 1 у курьера 2
+
+curl -i -H "Content-Type: application/json" -X POST\
+    -d '{
+    "courier_id" : 2,
+    "order_id" : 1,
+    "complete_time" : "2021/05/1T23:59:59Z"
+    }' http://0.0.0.0:8080/orders/complete
+
+Вывод:
+{"order_id":1}
+
+=============================================================
+Проверим статиситику для 2 курьера
+
+curl http://0.0.0.0:8080/couriers/2
+
+Вывод:
+{
+"courier_id":2,
+"courier_type":"bike",
+"earnings":2500.0, (так как 1 заказ на bike то 5 * 500 = 2500
+"rating":X, (так как возможна проблема со временем, невозможно рассчитать время
+"regions":[22,6],
+"working_hours":"{09:00-18:00}"}
+
+
+=================================================================
+Поменяем вид транспорта для курьера 2
+
+curl -i -H "Content-Type: application/json" -X PATCH\
+    -d '{
+     "courier_type": "car"
+    }' http://0.0.0.0:8080/couriers/2
+
+Вывод:
+{
+"courier_id":2,
+"courier_type":"car", // bike -> car
+"earnings":2500.0,
+"rating":X,
+"regions":[22,6],
+"working_hours":"{09:00-18:00}"
+}
+
+==============================================================
+Назначим заказы для курьера 2
+
+curl -i -H "Content-Type: application/json" -X POST\
+    -d '{
+    "courier_id" : 2
+    }' http://0.0.0.0:8080/orders/assign
+
+Вывод:
+{"assign_time":"TIME*","orders":[{"id":2}]}
+
+===============================================================
+Закончим доставку заказа 2 у курьера 2
+
+curl -i -H "Content-Type: application/json" -X POST\
+    -d '{
+    "courier_id" : 2,
+    "order_id" : 2,
+    "complete_time" : "2021/05/1T23:59:59Z"
+    }' http://0.0.0.0:8080/orders/complete
+
+Вывод:
+{"order_id":2}
+
+=============================================================
+Проверим статиситику для 2 курьера
+
+curl http://0.0.0.0:8080/couriers/2
+
+Вывод:
+
+{"courier_id":2,
+"courier_type":"car",
+"earnings":7000.0 // 2500 + 9 * 500 = 2500 + 4500 = 7000,
+"rating":X,
+"regions":[22,6],
+"working_hours":"{09:00-18:00}"}
+
+=================================================================
+Поменяем рабочее время для курьера 1
+
+curl -i -H "Content-Type: application/json" -X PATCH\
+    -d '{
+     "working_hours": ["15:00-21:00"]
+    }' http://0.0.0.0:8080/couriers/1
+
+{"courier_id":1,
+"courier_type":"foot",
+"regions":[17,6,15],
+"working_hours":"{15:00-21:00}"}
+
+======================================================================
+Назначим заказы для курьера 1
+
+curl -i -H "Content-Type: application/json" -X POST\
+    -d '{
+    "courier_id" : 1
+    }' http://0.0.0.0:8080/orders/assign
+
+Вывод:
+{"assign_time":"2021/03/29T06:04:11Z","orders":[{"id":3}]}
+
+===============================================================
+Закончим доставку заказа 3 у курьера 1
+
+curl -i -H "Content-Type: application/json" -X POST\
+    -d '{
+    "courier_id" : 1,
+    "order_id" : 3,
+    "complete_time" : "2021/05/1T23:59:59Z"
+    }' http://0.0.0.0:8080/orders/complete
+
+Вывод:
+{"order_id":3}
+
+=============================================================
+Проверим статиситику для 1 курьера
+
+curl http://0.0.0.0:8080/couriers/1
+
+Вывод:
+{
+"courier_id":1,
+"courier_type":"foot",
+"earnings":1000.0, // так как type = foot  имеен 2 * 500 = 1000
+"rating":X,
+"regions":[17,6,15],
+"working_hours":"{15:00-21:00}"
+}
