@@ -219,7 +219,7 @@ def patch_courier_by_id(courier_id):
         SET(dataB, query)
         used = True
     if not used:
-        abort(400)
+        abort(400, "No data to patch")
     return jsonify(select_courier(courier_id)), 200
 
 
