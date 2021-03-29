@@ -1,0 +1,53 @@
+Не забудьте отчистить базу данных (подробнее в README.md Тестирование)
+
+=====================================
+Добавим курьера
+
+curl -i -H "Content-Type: application/json" -X POST\
+ -d '{"data": [{
+    "courier_id": 1,
+    "courier_type": "foot",
+    "working_hours": ["11:35-14:05", "09:00-11:00"]
+    }] }' http://0.0.0.0:8080/couriers
+
+Вывод:
+<title>400 Bad Request</title>
+<h1>Bad Request</h1>
+<p>{'couriers': [{'id': 1}]}</p>
+Так как у курьера отсутствует информация о регионах(regions)
+
+
+============================================
+Получить данные о курьере 1
+
+curl http://0.0.0.0:8080/couriers/1
+
+Вывод:
+{"description":"Not found"}
+Так как в базе данных отсутствует информация о курьере 1
+
+=====================================
+Добавим курьера
+
+curl -i -H "Content-Type: application/json" -X POST\
+ -d '{"data": [{
+    "courier_id": 1,
+    "courier_type": "foot",
+    "regions": [1, 15, 99],
+    "working_hours": ["11:35-14:05", "09:00-11:00"]
+    }] }' http://0.0.0.0:8080/couriers
+
+Вывод:
+{"couriers":[{"id":1}]}
+
+========================================
+Попробуем обновить параметры для курьера 1\
+curl -i -H "Content-Type: application/json" -X PATCH\
+    -d '{
+    }' http://0.0.0.0:8080/couriers/1
+
+Вывод:
+<title>400 Bad Request</title>
+<h1>Bad Request</h1>
+<p>No data to patch</p>
+Так как нет данных в запросе, которые нужно обновить
