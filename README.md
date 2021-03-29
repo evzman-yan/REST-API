@@ -7,15 +7,17 @@ REST API for Yandex Academy backend school
 /PATCH/couriers/courier_id - изменить параметры для курьера(courier_id)
 /POST/orders/assign({courier_id})- назначить заказы(которые он может выполнить) для курьера(courier_id)
 /POST/orders/complete({courier_id, order_id, complete_time}) - завершить заказ(order_id) для курьера(courier_id)
-/GET/couriers/courier_id
+/GET/couriers/courier_id - получить данные о курьере(courier_id)
 ```
 
-#### Правила использования:
+#### Установка:
 ```
-Запустить сервер :
-$ python3 main.py
-Отчистить базу данных:
-$ python3 clear_data.py
+Запустить виртуальную машину
+Заустить сервер:
+$ python3 RESTapi/main.py
+
+Для отчистки базы данных:
+$ python3 RESTapi/clear_data.py
 ```
 
 
