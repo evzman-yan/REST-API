@@ -1,6 +1,6 @@
 #### REST-API
 ```
-REST API for Yandex Academy backend school
+REST API
 Данный проект является REST-сервисом написанным на Python, который умеет обрабатывать URL запросы:
 /POST/couriers - добавить курьеров
 
